@@ -11,63 +11,21 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "OTP",
         "groups": [
           {
             "group": "Getting started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "otp/getting-started/overview"
             ]
           },
           {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
+            "group": "Ways to Use",
+            "pages": []
           },
           {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/components",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "Agent ready",
-            "pages": [
-              "agent-ready/prompt",
-              "agent-ready/visibility",
-              "agent-ready/contextual",
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
+            "group": "API Reference",
+            "pages": []
           }
         ]
       }
@@ -75,13 +33,18 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Learning Center",
+          "href": "https://www.engagelab.com/learning-center",
+          "icon": "graduation-cap"
+        },
+        {
+          "anchor": "Customer Cases",
+          "href": "https://www.engagelab.com/customer-cases",
+          "icon": "briefcase"
         },
         {
           "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
+          "href": "https://www.engagelab.com/blog",
           "icon": "newspaper"
         }
       ]
@@ -94,14 +57,18 @@
   "navbar": {
     "links": [
       {
+        "label": "Home",
+        "href": "https://www.engagelab.com/"
+      },
+      {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@engagelab.com"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Console",
+      "href": "https://www.engagelab.com/console/"
     }
   },
   "contextual": {
@@ -111,16 +78,22 @@
       "chatgpt",
       "claude",
       "perplexity",
-      "mcp",
+      "grok",
+      "aistudio",
+      "devin",
+      "windsurf",
       "cursor",
-      "vscode"
+      "vscode",
+      "mcp",
+      "add-mcp"
     ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://twitter.com/EngageLab_",
+      "facebook": "https://facebook.com/EngageLab.Aurora.Mobile",
+      "linkedin": "https://linkedin.com/company/engagelab-aurora-mobile",
+      "youtube": "https://www.youtube.com/@EngageLab_"
     }
   }
 }
