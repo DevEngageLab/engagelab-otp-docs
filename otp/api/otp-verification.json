@@ -1,0 +1,149 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EngageLab OTP API - OTP Varification",
+    "description": "Verify One-Time Passwords securely. Note: Verification codes that have already been successfully varified cannot be verified again.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://otp.api.engagelab.cc"
+    }
+  ],
+  "paths": {
+    "/v1/verifications": {
+      "post": {
+        "summary": "OTP Verification",
+        "description": "Verify an OTP code using the message ID.",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message_id",
+                  "verify_code"
+                ],
+                "properties": {
+                  "message_id": {
+                    "type": "string",
+                    "description": "The message ID corresponding to the verification code, returned by the /messages API"
+                  },
+                  "verify_code": {
+                    "type": "string",
+                    "description": "The verification code to be validated"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message_id",
+                    "verify_code",
+                    "verified"
+                  ],
+                  "properties": {
+                    "message_id": {
+                      "type": "string",
+                      "description": "The message ID corresponding to the verification code, returned by the /v1/messages API"
+                    },
+                    "verify_code": {
+                      "type": "string",
+                      "description": "The verification code to be validated"
+                    },
+                    "verified": {
+                      "type": "boolean",
+                      "description": "The validation result. true indicates validation succeeded, and false indicates validation failed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Use HTTP Basic Authentication for authentication. The generation algorithm for `base64_auth_string` is: `base64(dev_key:dev_secret)`"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code. For example: 3001, 5001, etc."
+          },
+          "message": {
+            "type": "string",
+            "description": "Error details"
+          }
+        }
+      }
+    }
+  }
+}

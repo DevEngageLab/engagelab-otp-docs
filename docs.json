@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "EngageLab",
+  "name": "EngageLab Docs",
   "colors": {
     "primary": "#5E6BFA",
     "light": "#6A76FF",
@@ -16,7 +16,8 @@
           {
             "group": "Getting started",
             "pages": [
-              "otp/getting-started/overview"
+              "otp/getting-started/overview",
+              "otp/getting-started/quickstart"
             ]
           },
           {
@@ -24,8 +25,14 @@
             "pages": []
           },
           {
-            "group": "API Reference",
-            "pages": []
+            "group": "REST API",
+            "pages": [
+              "otp/api/authentication",
+              "otp/api/custom-message-delivery.json POST /v1/custom-messages",
+              "otp/api/custom-otp-code-delivery.json POST /v1/codes",
+              "otp/api/otp-delivery.json POST /v1/messages",
+              "otp/api/otp-verification.json POST /v1/verifications"
+            ]
           }
         ]
       }
