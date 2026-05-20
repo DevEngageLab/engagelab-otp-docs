@@ -1,0 +1,42 @@
+---
+title: "Agent Skills"
+description: "Install and use EngageLab OTP skills in your AI coding agents (like Cursor or Claude Code) to automate OTP integration."
+icon: "robot"
+---
+
+EngageLab provides official Agent Skills that allow AI coding assistants (such as Cursor and Claude Code) to understand and integrate the EngageLab OTP service automatically. By installing these skills, your AI agent will know exactly how to call the APIs, handle authentication, and process responses without you needing to read the documentation manually.
+
+## Install Skills
+
+You can install the skills using the `npx skills` CLI. Run the following commands in your project's root directory:
+
+```bash
+# Skill for sending OTPs
+npx skills add https://github.com/DevEngageLab/engagelab-skills/tree/main/engagelab-otp/skills/engagelab-otp-send
+
+# Skill for verifying OTPs
+npx skills add https://github.com/DevEngageLab/engagelab-skills/tree/main/engagelab-otp/skills/engagelab-otp-verify
+
+# Skill for configuring and handling webhooks/callbacks
+npx skills add https://github.com/DevEngageLab/engagelab-skills/tree/main/engagelab-otp/skills/engagelab-otp-webhook
+```
+
+Once installed, these skills will be saved in your project's `.cursor/skills` or `.claude/skills` directory, depending on your environment.
+
+## How to Use
+
+After installation, you can simply ask your AI agent to implement OTP features using natural language. For example:
+
+- *"Help me implement an OTP login flow using EngageLab."*
+- *"Create a function to verify the EngageLab OTP code."*
+- *"Set up an Express route to handle EngageLab OTP webhook callbacks."*
+
+The agent will automatically read the installed skills and write the correct integration code using your `dev_key` and `dev_secret`.
+
+## Update Skills
+
+To ensure your AI agent always has the latest API definitions and best practices, you can update all installed skills by running:
+
+```bash
+npx skills update
+```

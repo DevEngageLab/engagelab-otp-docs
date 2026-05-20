@@ -1,0 +1,164 @@
+---
+title: "SMPP"
+description: "Learn how to integrate with the EngageLab OTP service using the SMPP protocol."
+icon: "network-wired"
+---
+
+This specification defines the SMPP communication protocol for the EngageLab OTP service. It is designed to enable efficient and reliable message delivery and status reporting over TCP connections. The API information includes the IP address, port number, and authentication details required for the connection. Please ensure that the account and password provided through authorized channels are configured correctly.
+
+## SMPP Address
+
+- **SMPP address:** `otpsmpp.api.engagelab.cc`
+
+Please obtain the following information through an authorized channel, such as business or technical support:
+
+- **Port**: `{ port }`
+- **Account**: `{ system_id }`
+- **Password**: `{ password }`
+
+## Establishing a Connection
+
+### Client Packet
+
+After establishing the TCP connection, the first packet must send the `BindTransceiver` command (`0x00000009`) for authentication. This packet must include the following fields:
+
+- **system_id**: The system account assigned to the client, used to identify the client.
+- **password**: The access password corresponding to the system account, used for authentication.
+
+### Server Response
+
+#### Successful Response
+
+- The server returns the `BindTransceiverResp` command (`0x80000009`).
+- The `system_id` field is populated with the same value as the received `system_id` field.
+
+#### Failed Response
+
+- If authentication fails, the server disconnects the TCP connection and records the reason for the failure.
+
+## Message Sending
+
+### Server Logic
+
+Message sending uses the `SUBMIT_SM` command (`0x00000004`) to submit a message delivery request. The server logic is as follows:
+
+1. The server parses the request content and always uses the SMS channel for delivery.
+2. Message delivery is synchronous, and the result is returned via the `SUBMIT_SM_RESP` command (`0x80000004`).
+3. Delivery status is reported via delivery reports. For details, see **Delivery Reports**.
+4. We recommend using `UCS2` encoding to support special characters and internationalization.
+
+### Client Packet
+
+The client sends the `SUBMIT_SM` command (`0x00000004`) to submit a message. The packet must include the following fields:
+
+1. **service_type**
+   - Value: `MSG` / `CODE` / `MRKT`
+   - Default value: `MSG`
+2. **source_addr**
+   - Can be left empty and is currently not used in OTP.
+3. **destination_addr**
+   - The message destination, which must be in international mobile number format (for example, `+6598765432`).
+4. **short_message**
+   - The message content uses JSON format, as shown below:
+
+```json
+{
+  "id": "xxx",           // Template ID
+  "language": "default", // Language used; default is default
+  "code": "xx",          // Verification code; used only when service_type is CODE
+  "params": {            // Custom key-value pairs
+    "key1": "val1"       // val must be in string format
+  }
+}
+```
+
+5. **data_coding**
+   - It is recommended to use `UCS2` encoding to ensure special characters such as `{}` are parsed correctly.
+   - If direct transmission of `{}` is supported, the default encoding may be used (`0x00`).
+6. **status in the header**
+   - Set to `0x00000000`.
+
+### Server Response
+
+The server sends the `SUBMIT_SM_RESP` command (`0x80000004`) to return the message delivery result.
+
+#### Successful Response
+
+- **Value of the status field in the header**: `0x00000000`
+- **MESSAGE_ID field**: The response message ID, used to correlate delivery reports.
+
+#### Failed Response
+
+- The server populates the **status field in the header** to indicate the reason for failure:
+
+| Status Code | Description | Value |
+| --- | --- | --- |
+| `ESME_RINVPARAM` | Invalid parameter. Please check the request content format. | `0x00000032` |
+| `ESME_RSYSERR` | Internal service error. It is recommended to try again later. | `0x00000008` |
+| `ESME_RSUBMITFAIL` | Delivery failed, possibly due to a template issue or other reasons. | `0x00000045` |
+| `ESME_RINVNUMMSGS` | Incorrect content format in the short_message field. | `0x00000055` |
+| `ESME_RUNKNOWNERR` | Unknown error. Please contact technical support. | `0x000000FF` |
+
+## Delivery Reports
+
+The server reports delivery status via the `DELIVER_SM` command (`0x00000005`). The relevant fields are as follows:
+
+1. **service_type**
+   - Fixed value: `MSG`
+2. **source_addr**
+   - Leave empty.
+3. **destination_addr**
+   - Same as the `destination_addr` in the `SUBMIT_SM` command.
+4. **data_coding**
+   - Encoding method: default value `0x00`.
+5. **esm_class**
+   - Set to `0x00`.
+6. **short_message**
+   - The delivery report is packaged using the `delivery receipt` format.
+7. **ReceiptedMessageID in TLV**
+   - Message ID, used for correlation and identification.
+8. **MessageState in TLV**
+   - Message status, field value `0x0427`.
+
+### Status Parsing
+
+In the **short_message** field, the meanings of the `stat` values are as follows:
+
+| Status | Meaning |
+| --- | --- |
+| `DELIVRD` | Delivered successfully |
+| `UNDELIV` | Delivery failed |
+
+## Other Notes
+
+### Invalid Commands
+
+For invalid commands submitted by the client, the server returns the `GENERIC_NACK` command (`0x80000000`) and records the relevant logs. The server supports only the following commands:
+
+1. `EnquireLink` command (`0x00000015`)
+2. `Unbind` command (`0x00000006`)
+3. `SubmitSM` command (`0x00000004`)
+4. `DeliverSMResp` command (`0x80000005`)
+5. `BindTransceiver` command (`0x00000009`)
+
+### Keepalive
+
+The client must send the `EnquireLink` command (`0x00000015`) once every 30 seconds (tolerance: ±5 seconds) to ensure the connection remains active.
+
+## Meaning of Sending Status
+
+| Status Code | Meaning |
+| --- | --- |
+| `ESME_RINVPARAM` | Invalid parameter. Please check the request content format. |
+| `ESME_RINVNUMMSGS` | Incorrect content format in the short_message field. |
+| `ESME_RSUBMITFAIL` | Delivery failed, possibly due to a template issue or other reasons. |
+| `ESME_RSYSERR` | Internal service error. It is recommended to try again later. |
+| `ESME_RUNKNOWNERR` | Unknown error. Please contact technical support. |
+| `DELIVRD` | Message delivered successfully |
+| `UNDELIV` | Message could not be delivered |
+
+## Terminology
+
+- **SMPP**: Short Message Peer-to-Peer Protocol, used for message exchange with SMS gateways.
+- **SUBMIT_SM**: The SMPP command for submitting SMS messages.
+- **DELIVER_SM**: The SMPP command used by the server to report message delivery status.

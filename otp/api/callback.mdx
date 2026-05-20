@@ -1,0 +1,494 @@
+---
+title: "Callback"
+description: "Learn how to configure the callback URL for EngageLab OTP and the associated security validation mechanisms to ensure the reliability and security of callback data."
+icon: "webhook"
+---
+
+This section explains how to configure the callback URL for EngageLab OTP and the associated security validation mechanisms to ensure the reliability and security of callback data.
+
+## Callback URL Configuration and Validation
+
+After configuring the callback URL, EngageLab OTP will automatically send an HTTP POST request to the specified URL to verify its availability. Your service must return an HTTP 200 status code within 3 seconds; otherwise, the system will consider the URL unavailable.
+
+<Note>
+To ensure successful receipt of callback data, please add `119.8.170.74` and `114.119.180.30` to your server's firewall whitelist.
+</Note>
+
+### Request Example
+
+Assuming your callback URL is `https://example.engagelabotp.callback.com`, the system will send the following request:
+
+```bash
+curl -X POST https://example.engagelabotp.callback.com -d '{}'
+```
+
+### Response Requirements
+
+Your service only needs to return an HTTP 200 status code without any content. For example:
+
+```http
+HTTP/1.1 200 OK
+Content-Length: 0
+```
+
+<Note>
+Callback URL verification only checks the HTTP status code and does not require any specific response content. Ensure your service can correctly respond with a 200 status code within 3 seconds.
+</Note>
+
+## Callback Security Mechanisms
+
+To ensure the security and authenticity of callback data, EngageLab OTP supports multiple security verification methods.
+
+### Username and Secret Validation (Optional)
+
+* This is an optional configuration. If a username is set, a secret must also be configured.
+* Once configured, EngageLab will include an `X-CALLBACK-ID` field in the HTTP header of each callback request, formatted as follows:
+
+```http
+X-CALLBACK-ID: timestamp={timestamp};nonce={nonce};username={username};signature={signature}
+```
+
+* Where:
+   * `timestamp`: The timestamp when the callback was sent
+   * `nonce`: A random number
+   * `username`: The username you configured
+   * `signature`: The signature, calculated as described below
+
+**Signature Calculation (Python Example)**
+
+```python
+import hashlib, hmac
+def verify(username, secret, timestamp, nonce, signature):
+    return signature == hmac.new(
+        key=secret.encode(),
+        msg=f'{timestamp}{nonce}{username}'.encode(),
+        digestmod=hashlib.sha256
+    ).hexdigest()
+```
+
+* Your server can use the above method to verify the authenticity of callback requests.
+
+### Authorization Authentication (Optional)
+
+* If your callback interface requires authentication (e.g., Basic Auth, Bearer Token), you can provide the Authorization information during configuration.
+* EngageLab will automatically include the Authorization field in the request, allowing your service to verify the request's identity.
+
+## Callback Event
+
+### Message Status
+
+Message status tracks the lifecycle of each message, providing real-time updates on the progress of sending, delivery, verification, and other stages. This helps with statistical analysis, error handling, and user experience optimization.
+
+| Event Identifier | Description |
+| --- | --- |
+| `plan` | Message is scheduled and added to the sending queue |
+| `target_valid` | Target number is valid |
+| `target_invalid` | Target number is invalid |
+| `sent` | Message was successfully sent |
+| `sent_failed` | Message sending failed |
+| `delivered` | Message was delivered to the user's device |
+| `delivered_failed` | Message was sent but failed to deliver to the user's device |
+| `verified` | User successfully completed OTP verification |
+| `verified_failed` | User verification failed |
+| `verified_timeout` | User did not complete verification within the specified time |
+
+#### Callback Data Structure
+
+**Outer Structure**
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      // ReportLifecycle object
+    }
+  ]
+}
+```
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `total` | int | Number of data entries in this callback |
+| `rows` | array | Array of lifecycle status data |
+
+**ReportLifecycle Object**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `message_id` | string | Unique ID of the message |
+| `to` | string | Recipient's phone number |
+| `server` | string | Service type (e.g., otp) |
+| `channel` | string | Channel type |
+| `itime` | int64 | Callback timestamp (in seconds) |
+| `custom_args` | object | Custom parameters (if provided, they will be returned) |
+| `status` | object | Status details object |
+
+**Status Object**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `message_status` | string | Current status of the message (see table above) |
+| `status_data` | object | Status data object |
+| `billing` | object | Billing information object (returned if applicable) |
+| `error_code` | int | Error code, 0 indicates no error |
+| `error_detail` | object | Error details (returned if an error occurs) |
+
+**Status Data Object**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `msg_time` | int64 | Message creation timestamp (in seconds) |
+| `message_id` | string | Message ID |
+| `current_send_channel` | string | Current sending channel |
+| `template_key` | string | Template configuration key |
+| `business_id` | string | Business ID |
+
+**Billing Object (Returned if applicable)**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `cost` | float64 | Cost amount |
+| `currency` | string | Currency, fixed as "USD" |
+
+> Billing information is generally included only for messages in the `sent` stage.
+
+**Error Detail Object (Returned if an error occurs)**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `message` | string | Error message description |
+
+**Example: Message Successfully Sent**
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "message_id": "123456789",
+      "to": "+6598765432",
+      "server": "sms",
+      "channel": "sms",
+      "itime": 1701234567,
+      "custom_args": {
+        "order_id": "ORDER123",
+        "user_id": "USER456"
+      },
+      "status": {
+        "message_status": "sent",
+        "status_data": {
+          "msg_time": 1701234560,
+          "message_id": "123456789",
+          "current_send_channel": "CHANNEL_A",
+          "template_key": "verify_code",
+          "business_id": "1001"
+        },
+        "billing": {
+          "cost": 0.005,
+          "currency": "USD"
+        },
+        "error_code": 0
+      }
+    }
+  ]
+}
+```
+
+**Example: Message Sending Failed**
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "message_id": "123456790",
+      "to": "+6598765433",
+      "server": "sms",
+      "channel": "sms",
+      "itime": 1701234568,
+      "status": {
+        "message_status": "sent_fail",
+        "status_data": {
+          "msg_time": 1701234561,
+          "message_id": "123456790",
+          "current_send_channel": "CHANNEL_B",
+          "template_key": "verify_code",
+          "business_id": "1001"
+        },
+        "error_code": 4001,
+        "error_detail": {
+          "message": "Invalid phone number"
+        }
+      }
+    }
+  ]
+}
+```
+
+### Notification Events
+
+Notification events refer to system-level business events or alerts. They are used to notify businesses about important information such as service status, account balance, or template audit results, enabling timely handling and risk prevention.
+
+| Event Identifier | Description |
+| --- | --- |
+| `insufficient_verification_rate` | Verification rate is below the set threshold |
+| `insufficient_balance` | Insufficient account balance |
+| `template_audit_result` | Notification of template audit results |
+
+**Example**
+
+```json
+{
+  "total": 1,
+  "rows": [{
+    "server": "otp",
+    "itime": 1712458844,
+    "notification": {
+      "event": "insufficient_balance",
+      "notification_data": {
+        "business_id": "1744569418236633088",
+        "remain_balance": -0.005,                    // Current balance
+        "balance_threshold": 2                       // Alert threshold
+      }
+    }
+  }]
+}
+```
+
+### Message Responses
+
+Message responses primarily refer to callback response events when interacting with users or external systems.
+
+| Event Identifier | Description |
+| --- | --- |
+| `uplink_message` | Uplink messages sent by users via SMS or other methods |
+
+**Example**
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "server": "otp",
+      "itime": 1741083306,
+      "message_id": "0",
+      "business_id": "0",
+      "response": {
+        "event": "uplink_message",
+        "response_data": {
+          "message_sid": "SM1234567890",
+          "account_sid": "AC1234567890",
+          "from": "+1234567890",
+          "to": "+0987654321",
+          "body": "Hello, it's time to struggle!"
+        }
+      }
+    }
+  ]
+}
+```
+
+### System Events
+
+System events cover operations related to accounts, templates, API calls, and more. They facilitate monitoring, auditing, and automation of key operations such as account logins, key changes, and API calls.
+
+| Event Identifier | Description |
+| --- | --- |
+| `account_login` | Notifications related to account login operations |
+| `key_manage` | Notifications related to key changes and management |
+| `msg_history` | Notifications related to message history queries |
+| `template_manage` | Notifications for template creation, updates, and deletions |
+| `api_call` | Notifications for API call operations |
+
+#### Callback Data Structure
+
+**Outer Structure**
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      // System Event Object
+    }
+  ]
+}
+```
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `total` | int64 | Total number of events in this callback |
+| `rows` | array | Array of system event objects |
+
+**System Event Object**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `server` | string | Fixed as "otp" |
+| `itime` | int64 | Event timestamp (in seconds) |
+| `system_event` | object | System event details |
+
+**`system_event` Object**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `event` | string | Event type |
+| `data` | object | Event data |
+
+**`data` Object**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `business_id` | string | Business ID |
+| `org_id` | string | Organization ID |
+| `operator` | object | Operator information |
+
+**`operator` Object**
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `email` | string | Operator email (if available) |
+| `api_key` | string | API Key (if available) |
+| `ip_address` | string | Operator's IP address |
+
+**Request Structure**
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "server": "otp",
+      "itime": 1694012345,
+      "system_event": {
+        "event": "account_login",
+        "data": {
+          "business_id": "123",
+          "org_id": "org-abc",
+          "operator": {
+            "email": "foo@example.com",
+            "api_key": "api-xxxx",
+            "ip_address": "1.2.3.4"
+          },
+          "account_login": {
+            "action": "login_success"
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+#### Account Login Events
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `action` | string | Login success, login failure, or logout |
+| `fail_reason` | string | Reason for login failure, returned only for login_failed |
+
+**Example**
+
+```json
+{
+  "event": "account_login",
+  "data": {
+    "business_id": "123",
+    "org_id": "org-abc",
+    "operator": {
+      "email": "foo@example.com",
+      "ip_address": "1.2.3.4"
+    },
+    "account_login": {
+      "action": "login_success"
+    }
+  }
+}
+```
+
+#### Template Management Events
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `action` | string | Create, update, or delete a template |
+| `template_id` | string | Template ID |
+| `template_name` | string | Template name |
+
+**Example**
+
+```json
+{
+  "event": "template_manage",
+  "data": {
+    "business_id": "123",
+    "org_id": "org-abc",
+    "operator": {
+      "email": "foo@example.com",
+      "ip_address": "1.2.3.4"
+    },
+    "template_manage": {
+      "action": "update template",
+      "template_id": "tmpl-456",
+      "template_name": "Verification Code"
+    }
+  }
+}
+```
+
+#### Key Management Events
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `action` | string | Create, update, delete, or view a key |
+| `api_key` | string | API Key |
+| `description` | string | Description (optional) |
+
+**Example**
+
+```json
+{
+  "event": "key_manage",
+  "data": {
+    "business_id": "123",
+    "org_id": "org-abc",
+    "operator": {
+      "email": "foo@example.com",
+      "ip_address": "1.2.3.4"
+    },
+    "key_manage": {
+      "action": "create",
+      "api_key": "apikey-789",
+      "description": "New API key created"
+    }
+  }
+}
+```
+
+#### API Call Events
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `api_path` | string | API endpoint path |
+| `method` | string | HTTP method |
+
+**Example**
+
+```json
+{
+  "event": "api_call",
+  "data": {
+    "business_id": "123",
+    "org_id": "org-abc",
+    "operator": {
+      "api_key": "apikey-789",
+      "ip_address": "1.2.3.4"
+    },
+    "api_call": {
+      "api_path": "/api/v1/messages/send",
+      "method": "POST"
+    }
+  }
+}
+```

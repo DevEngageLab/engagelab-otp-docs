@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "EngageLab OTP Custom Message Delivery",
+    "title": "EngageLab OTP API - Custom Message Delivery",
     "description": "Deliver custom message content to a mobile phone number or email address.",
     "version": "1.0.0"
   },

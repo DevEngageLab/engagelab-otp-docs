@@ -1,0 +1,129 @@
+---
+title: "SDKs"
+description: "Official EngageLab OTP SDKs for Node.js and Python."
+icon: "cubes"
+---
+
+EngageLab provides official SDKs for Node.js and Python to help you integrate OTP delivery, verification, and webhook callbacks with zero dependencies.
+
+## Node.js SDK
+
+The official Node.js SDK supports Node.js 14+ and includes TypeScript declarations.
+
+### Install
+
+```bash
+npm install engagelab-otp
+```
+
+### Quick Start
+
+```js
+const { OTPClient } = require('engagelab-otp');
+
+const otp = new OTPClient(
+  process.env.ENGAGELAB_DEV_KEY,
+  process.env.ENGAGELAB_DEV_SECRET
+);
+
+// Platform-generated OTP — easiest path
+const { message_id } = await otp.send('+6591234567', 'your-template-id', {}, 'en');
+const { verified }   = await otp.verify(message_id, userTypedCode);
+```
+
+### Webhook Callbacks (Express)
+
+EngageLab signs callbacks with `X-CALLBACK-ID` (HMAC-SHA256). The SDK verifies signatures and parses events for you.
+
+```js
+const express = require('express');
+const { WebhookVerifier } = require('engagelab-otp');
+
+const app = express();
+app.use(express.json());
+
+const verifier = new WebhookVerifier({
+  username: process.env.ENGAGELAB_WEBHOOK_USERNAME,
+  secret:   process.env.ENGAGELAB_WEBHOOK_SECRET,
+});
+
+app.post('/webhook', verifier.middleware(async (events) => {
+  for (const e of events) {
+    if (e.kind !== 'message_status') continue;
+    if (!e.is_terminal) continue; // mid-flight (e.g. fallback in progress) — wait
+
+    if (e.status === 'delivered')        await markDelivered(e.message_id);
+    else if (e.status === 'verified')    await markVerified(e.message_id);
+  }
+}));
+```
+
+For more examples, including custom OTP code delivery and error handling, visit the [engagelab-otp on npm](https://www.npmjs.com/package/engagelab-otp).
+
+---
+
+## Python SDK
+
+The official Python SDK supports Python 3.8+ and has zero external dependencies.
+
+### Install
+
+```bash
+pip install engagelab-otp
+```
+
+### Quick Start
+
+```python
+import os
+from engagelab_otp import OTPClient
+
+otp = OTPClient(
+    os.environ["ENGAGELAB_DEV_KEY"],
+    os.environ["ENGAGELAB_DEV_SECRET"],
+)
+
+# Platform-generated OTP — easiest path
+result = otp.send("+6591234567", "your-template-id", {"name": "Alice"}, language="en")
+check  = otp.verify(result["message_id"], user_typed_code)
+if check["verified"]:
+    print("Success!")
+```
+
+### Webhook Callbacks (Flask)
+
+The SDK provides a `WebhookVerifier` that automatically verifies the HMAC-SHA256 signature and parses the event payload.
+
+```python
+import os
+from flask import Flask
+from engagelab_otp import WebhookVerifier, MessageStatusEvent
+
+app = Flask(__name__)
+
+verifier = WebhookVerifier(
+    username=os.environ["ENGAGELAB_WEBHOOK_USERNAME"],
+    secret=os.environ["ENGAGELAB_WEBHOOK_SECRET"],
+)
+
+def handle(events):
+    for e in events:
+        if not isinstance(e, MessageStatusEvent):
+            continue
+        if not e.is_terminal:
+            continue   # mid-flight, wait
+        
+        if e.status == "delivered":
+            mark_delivered(e.message_id)
+        elif e.status == "verified":
+            mark_verified(e.message_id)
+
+app.add_url_rule(
+    "/webhook",
+    "engagelab_webhook",
+    verifier.flask_view(handle),
+    methods=["POST"],
+)
+```
+
+For more examples, including custom OTP code delivery and error handling, visit the [engagelab-otp on PyPI](https://pypi.org/project/engagelab-otp/).

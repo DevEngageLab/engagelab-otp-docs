@@ -1,0 +1,612 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EngageLab OTP API - Template",
+    "description": "Create, delete, and retrieve template configurations for the EngageLab OTP service.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://otp.api.engagelab.cc"
+    }
+  ],
+  "paths": {
+    "/v1/template-configs": {
+      "post": {
+        "summary": "Create Template",
+        "description": "Create a new template configuration.",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "template_id",
+                  "send_channel_strategy"
+                ],
+                "properties": {
+                  "template_id": {
+                    "type": "string",
+                    "description": "Custom template ID that must be unique, limited to 128 characters"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Template description, limited to 255 characters"
+                  },
+                  "send_channel_strategy": {
+                    "type": "string",
+                    "description": "Template strategy. A single channel can be whatsapp, sms, email, or voice. Multiple channels are separated by |"
+                  },
+                  "brand_name": {
+                    "type": "string",
+                    "description": "Brand identifier. In some template styles with brand signatures, it replaces the brand signature variable. Length must be 2-10 characters"
+                  },
+                  "verify_code_config": {
+                    "type": "object",
+                    "description": "Verification code configuration. Required when the template includes a verification code type",
+                    "required": [
+                      "verify_code_type",
+                      "verify_code_len",
+                      "verify_code_ttl"
+                    ],
+                    "properties": {
+                      "verify_code_type": {
+                        "type": "integer",
+                        "description": "Verification code type, range [1,7]: 1-numeric / 2-lowercase letters / 4-uppercase letters. Values can be combined (for example, 3 means numbers + lowercase letters)"
+                      },
+                      "verify_code_len": {
+                        "type": "integer",
+                        "description": "Verification code length, range [4,10]"
+                      },
+                      "verify_code_ttl": {
+                        "type": "integer",
+                        "description": "Verification code validity period in minutes, range [1, 10]. When the strategy includes whatsapp, it can only be 1, 5, or 10."
+                      }
+                    }
+                  },
+                  "whatsapp_config": {
+                    "type": "object",
+                    "description": "Configuration for the WhatsApp strategy. Required when the delivery strategy includes whatsapp",
+                    "required": [
+                      "template_type"
+                    ],
+                    "properties": {
+                      "template_type": {
+                        "type": "integer",
+                        "description": "WhatsApp template type. Currently, only the default template is supported, so the value is fixed at 1"
+                      },
+                      "template_default_config": {
+                        "type": "object",
+                        "description": "WhatsApp default template configuration. Required when the WhatsApp template type is the default template"
+                      }
+                    }
+                  },
+                  "sms_config": {
+                    "type": "object",
+                    "description": "Configuration for the SMS strategy. Required when the delivery strategy includes sms",
+                    "required": [
+                      "template_type"
+                    ],
+                    "properties": {
+                      "template_type": {
+                        "type": "integer",
+                        "description": "SMS template type: 1-default template / 2-custom template"
+                      },
+                      "template_default_config": {
+                        "type": "object",
+                        "description": "SMS default template configuration. Required when the SMS template type is the default template"
+                      },
+                      "template_custom_config": {
+                        "type": "object",
+                        "description": "SMS custom template configuration. Required when the SMS template type is a custom template",
+                        "required": [
+                          "custom_sub_type",
+                          "custom_content"
+                        ],
+                        "properties": {
+                          "custom_sub_type": {
+                            "type": "string",
+                            "description": "Custom template type: authentication-verification code / marketing-marketing / utility-notification"
+                          },
+                          "custom_content": {
+                            "type": "string",
+                            "description": "Custom template content. For the authentication type, it must include the {{code}} variable"
+                          },
+                          "custom_country_codes": {
+                            "type": "string",
+                            "description": "Target country/region codes, separated by commas, used as a reference during template review"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "voice_config": {
+                    "type": "object",
+                    "description": "Configuration for the voice strategy. Required when the delivery strategy includes voice",
+                    "required": [
+                      "template_type"
+                    ],
+                    "properties": {
+                      "template_type": {
+                        "type": "integer",
+                        "description": "Voice template type. Currently, only the default template is supported, so the value is fixed at 1"
+                      },
+                      "template_default_config": {
+                        "type": "object",
+                        "description": "Voice default template configuration. Required when the voice template type is the default template"
+                      }
+                    }
+                  },
+                  "email_config": {
+                    "type": "object",
+                    "description": "Configuration for the email strategy. Required when the delivery strategy includes email",
+                    "required": [
+                      "template_name"
+                    ],
+                    "properties": {
+                      "template_name": {
+                        "type": "string",
+                        "description": "Email template name"
+                      },
+                      "template_custom_configs": {
+                        "type": "array",
+                        "description": "Email custom template configurations. Required when the email template type is a custom template. Supports multilingual configuration",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "language",
+                            "pre_from_mail",
+                            "pre_subject",
+                            "template_content"
+                          ],
+                          "properties": {
+                            "language": {
+                              "type": "string",
+                              "description": "Language, where default is the default language. Different template content can be matched according to the language parameter during message delivery"
+                            },
+                            "pre_from_name": {
+                              "type": "string",
+                              "description": "Preset sender name"
+                            },
+                            "pre_from_mail": {
+                              "type": "string",
+                              "description": "Preset sender email"
+                            },
+                            "pre_subject": {
+                              "type": "string",
+                              "description": "Preset email subject"
+                            },
+                            "template_content": {
+                              "type": "string",
+                              "description": "Email content. Supports HTML. Variables must be enclosed in {{}}"
+                            },
+                            "pre_param_map": {
+                              "type": "object",
+                              "description": "Default values for variables in the email content, declared using key-value pairs. Values must be strings",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "pwa_config": {
+                    "type": "object",
+                    "description": "PWA-related configuration. Currently optional",
+                    "properties": {
+                      "pwa_platform": {
+                        "type": "string",
+                        "description": "The PWA platform used. Please contact technical support for the specific value"
+                      },
+                      "pwa_code": {
+                        "type": "string",
+                        "description": "The code used within the PWA platform"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get All Template Lists",
+        "description": "This API currently does not support pagination. It returns a summary list of all templates and mainly excludes the specific content. If you need detailed content, please use the detail API.",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "template_id": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "send_channel_strategy": {
+                        "type": "string"
+                      },
+                      "brand_name": {
+                        "type": "string"
+                      },
+                      "verify_code_config": {
+                        "type": "object"
+                      },
+                      "whatsapp_config": {
+                        "type": "object"
+                      },
+                      "sms_config": {
+                        "type": "object"
+                      },
+                      "voice_config": {
+                        "type": "object"
+                      },
+                      "email_config": {
+                        "type": "object"
+                      },
+                      "pwa_config": {
+                        "type": "object"
+                      },
+                      "created_time": {
+                        "type": "integer"
+                      },
+                      "status": {
+                        "type": "integer"
+                      },
+                      "audit_remark": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/template-configs/{templateId}": {
+      "delete": {
+        "summary": "Delete Template",
+        "description": "Delete a specific template by its ID.",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The template ID to be deleted"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Template Details",
+        "description": "Retrieve detailed information about a specific template by its ID.",
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The template ID to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "template_id": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "send_channel_strategy": {
+                      "type": "string"
+                    },
+                    "brand_name": {
+                      "type": "string"
+                    },
+                    "verify_code_config": {
+                      "type": "object"
+                    },
+                    "whatsapp_config": {
+                      "type": "object"
+                    },
+                    "sms_config": {
+                      "type": "object"
+                    },
+                    "voice_config": {
+                      "type": "object"
+                    },
+                    "email_config": {
+                      "type": "object"
+                    },
+                    "pwa_config": {
+                      "type": "object"
+                    },
+                    "created_time": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "audit_remark": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Use HTTP Basic Authentication for authentication. The generation algorithm for `base64_auth_string` is: `base64(dev_key:dev_secret)`"
+      }
+    },
+    "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Status code. 0 indicates success."
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code. For example: 3001, 4001, etc."
+          },
+          "message": {
+            "type": "string",
+            "description": "Error details"
+          }
+        }
+      }
+    }
+  }
+}

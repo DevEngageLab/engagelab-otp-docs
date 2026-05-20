@@ -22,16 +22,36 @@
           },
           {
             "group": "Ways to Use",
-            "pages": []
+            "pages": [
+              "otp/ways-to-use/rest-api",
+              "otp/ways-to-use/skill",
+              "otp/ways-to-use/sdk"
+            ]
           },
           {
             "group": "REST API",
             "pages": [
-              "otp/api/authentication",
-              "otp/api/custom-message-delivery.json POST /v1/custom-messages",
-              "otp/api/custom-otp-code-delivery.json POST /v1/codes",
-              "otp/api/otp-delivery.json POST /v1/messages",
-              "otp/api/otp-verification.json POST /v1/verifications"
+              {
+                "group": "OTP Service",
+                "pages": [
+                  "otp/api/authentication",
+                  "otp/api/custom-message-delivery.json POST /v1/custom-messages",
+                  "otp/api/custom-otp-code-delivery.json POST /v1/codes",
+                  "otp/api/otp-delivery.json POST /v1/messages",
+                  "otp/api/otp-verification.json POST /v1/verifications",
+                  "otp/api/template.json POST /v1/template-configs",
+                  "otp/api/template.json GET /v1/template-configs",
+                  "otp/api/template.json GET /v1/template-configs/{templateId}",
+                  "otp/api/template.json DELETE /v1/template-configs/{templateId}"
+                ]
+              },
+              {
+                "group": "Else",
+                "pages": [
+                  "otp/api/smpp",
+                  "otp/api/callback"
+                ]
+              }
             ]
           }
         ]

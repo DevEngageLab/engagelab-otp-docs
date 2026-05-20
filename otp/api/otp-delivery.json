@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "EngageLab OTP API - OTP Delivery",
-    "description": "This API generates verification codes through the EngageLab platform and delivers them according to the channel strategy specified in the template. If you want to generate verification codes yourself instead of using the EngageLab platform, you can call the EngageLab OTP Custom Verification Code Delivery API.",
+    "description": "Generate verification codes through the EngageLab platform and deliver them according to the channel strategy specified in the template. If you want to generate verification codes yourself instead of using the EngageLab platform, you can call the Custom OTP Code Delivery API.",
     "version": "1.0.0"
   },
   "servers": [

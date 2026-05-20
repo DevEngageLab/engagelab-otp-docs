@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "EngageLab OTP API - OTP Varification",
-    "description": "Verify One-Time Passwords securely. Note: Verification codes that have already been successfully varified cannot be verified again.",
+    "title": "EngageLab OTP API - OTP Verification",
+    "description": "Verify One-Time Passwords securely. Note: Verification codes that have already been successfully verified cannot be verified again.",
     "version": "1.0.0"
   },
   "servers": [
@@ -33,11 +33,11 @@
                 "properties": {
                   "message_id": {
                     "type": "string",
-                    "description": "The message ID corresponding to the verification code, returned by the /messages API"
+                    "description": "The message ID corresponding to the verification code, returned by the /v1/messages API"
                   },
                   "verify_code": {
                     "type": "string",
-                    "description": "The verification code to be validated"
+                    "description": "The verification code to be verified"
                   }
                 }
               }
@@ -63,11 +63,11 @@
                     },
                     "verify_code": {
                       "type": "string",
-                      "description": "The verification code to be validated"
+                      "description": "The verification code to be verified"
                     },
                     "verified": {
                       "type": "boolean",
-                      "description": "The validation result. true indicates validation succeeded, and false indicates validation failed"
+                      "description": "The verification result. `true` indicates verification succeeded, and `false` indicates verification failed."
                     }
                   }
                 }
