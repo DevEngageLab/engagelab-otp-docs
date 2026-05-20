@@ -14,6 +14,9 @@
     "/v1/template-configs": {
       "post": {
         "summary": "Create Template",
+        "x-mint": {
+          "href": "otp/api/create-template"
+        },
         "description": "Create a new template configuration.",
         "security": [
           {
@@ -272,6 +275,9 @@
       },
       "get": {
         "summary": "Get All Template Lists",
+        "x-mint": {
+          "href": "otp/api/get-all-template-lists"
+        },
         "description": "This API currently does not support pagination. It returns a summary list of all templates and mainly excludes the specific content. If you need detailed content, please use the detail API.",
         "security": [
           {
@@ -379,6 +385,9 @@
     "/v1/template-configs/{templateId}": {
       "delete": {
         "summary": "Delete Template",
+        "x-mint": {
+          "href": "otp/api/delete-template"
+        },
         "description": "Delete a specific template by its ID.",
         "security": [
           {
@@ -451,6 +460,9 @@
       },
       "get": {
         "summary": "Get Template Details",
+        "x-mint": {
+          "href": "otp/api/get-template-details"
+        },
         "description": "Retrieve detailed information about a specific template by its ID.",
         "security": [
           {

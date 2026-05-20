@@ -14,6 +14,9 @@
     "/v1/codes": {
       "post": {
         "summary": "Custom OTP Code Delivery",
+        "x-mint": {
+          "href": "otp/api/custom-otp-code-delivery"
+        },
         "description": "Send pre-generated verification codes to users.",
         "security": [
           {

@@ -1,0 +1,112 @@
+---
+title: "AI Onboarding"
+description: "Everything you need to onboard your AI agent to EngageLab OTP."
+icon: "brain"
+---
+
+If you're developing with AI, EngageLab offers several resources to improve your experience and allow your AI agents to seamlessly integrate OTP capabilities.
+
+* [Prerequisite: Create an API Key](#prerequisite-create-an-api-key)
+* [Agent Skills](#agent-skills)
+* [Docs for Agents](#docs-for-agents)
+* [Quick Start Guides](#quick-start-guides)
+* [Official SDKs](#official-sdks)
+
+## Prerequisite: Create an API Key
+
+Currently, we require a human to create an EngageLab account. Once you have an account, you'll need to create an API key in the OTP console. With an API key (`dev_key` and `dev_secret`), your agent can perform all OTP delivery and verification tasks.
+
+<Info>
+  To send an OTP, you'll also need to create a **Template** in the EngageLab console. While agents can manage templates via the [Template API](/otp/api/create-template), you may find it easier to create and approve your first template in the dashboard.
+</Info>
+
+## Agent Skills
+
+Skills give AI agents (like Cursor, Claude Code, or Windsurf) specialized knowledge for specific tasks.
+
+Install EngageLab OTP skills with a single command:
+
+```bash
+# Skill for sending OTPs
+npx skills add https://github.com/DevEngageLab/engagelab-skills/tree/main/engagelab-otp/skills/engagelab-otp-send
+
+# Skill for verifying OTPs
+npx skills add https://github.com/DevEngageLab/engagelab-skills/tree/main/engagelab-otp/skills/engagelab-otp-verify
+
+# Skill for configuring and handling webhooks/callbacks
+npx skills add https://github.com/DevEngageLab/engagelab-skills/tree/main/engagelab-otp/skills/engagelab-otp-webhook
+```
+
+<Card title="Agent Skills" icon="bot" href="/otp/ways-to-use/skill">
+  View more details on how to use EngageLab OTP skills with your AI coding agents.
+</Card>
+
+## Docs for Agents
+
+You can give your agent current docs in a context-aware way by providing our OpenAPI schemas. 
+
+For a structured approach, you can provide the following OpenAPI JSON files directly to your agent:
+
+* [OTP Delivery](/otp/api/otp-delivery)
+* [OTP Verification](/otp/api/otp-verification)
+* [Create Template](/otp/api/create-template)
+* [Get All Template Lists](/otp/api/get-all-template-lists)
+* [Get Template Details](/otp/api/get-template-details)
+* [Delete Template](/otp/api/delete-template)
+
+## Quick Start Guides
+
+Throughout our documentation, we provide quick start guides for common tasks. Copy the prompt below for your agent to get started instantly.
+
+<Accordion title="Example agent prompt for sending and verifying OTPs" icon="terminal">
+  EngageLab provides two primary endpoints for OTP workflows:
+
+  | Action | Endpoint | Use Case |
+  | --- | --- | --- |
+  | **Send OTP** | `POST /v1/messages` | Generate and deliver a verification code to a user. |
+  | **Verify OTP** | `POST /v1/verifications` | Verify the code submitted by the user. |
+
+  ## Quick Start
+
+  1. **Detect project language** from config files (package.json, requirements.txt, etc.)
+  2. **Install SDK** (preferred: `engagelab-otp` for Node.js/Python) or use REST APIs.
+  3. **Implement Authentication** - HTTP Basic Auth using `base64(dev_key:dev_secret)`.
+  4. **Implement Webhooks** - For production, set up callback endpoints to track delivery status.
+
+  ## Best Practices (Critical for Production)
+
+  ### Error Handling
+
+  | Code | Action |
+  | --- | --- |
+  | 400 | Fix request parameters (e.g., invalid phone number format), don't retry |
+  | 401, 403 | Check API key or IP whitelist, don't retry |
+  | 429 | Rate limited - retry with exponential backoff |
+  | 500 | Server error - retry with exponential backoff |
+
+  ### Minimal Example (Node.js SDK)
+
+  ```javascript
+  const { OTPClient } = require('engagelab-otp');
+
+  const otp = new OTPClient('YOUR_DEV_KEY', 'YOUR_DEV_SECRET');
+
+  // 1. Send OTP
+  const { message_id } = await otp.send('+6591234567', 'your-template-id', {}, 'en');
+  console.log('Sent message ID:', message_id);
+
+  // 2. Verify OTP
+  const { verified } = await otp.verify(message_id, '123456');
+  if (verified) {
+    console.log('Verification successful!');
+  }
+  ```
+</Accordion>
+
+## Official SDKs
+
+EngageLab provides official SDKs for Node.js and Python to help you integrate OTP delivery, verification, and webhook callbacks with zero dependencies.
+
+<Card title="SDKs" icon="blocks" href="/otp/ways-to-use/sdk">
+  View installation instructions and examples for Node.js and Python SDKs.
+</Card>

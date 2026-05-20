@@ -14,6 +14,9 @@
     "/v1/messages": {
       "post": {
         "summary": "OTP Delivery",
+        "x-mint": {
+          "href": "otp/api/otp-delivery"
+        },
         "description": "Generate and send OTP codes to users.",
         "security": [
           {

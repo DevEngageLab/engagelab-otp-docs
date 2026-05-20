@@ -2,6 +2,18 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "EngageLab Docs",
+  "description": "The official documentation for EngageLab.",
+  "metadata": {
+    "timestamp": true
+  },
+  "seo": {
+    "indexing": "all",
+    "metatags": {
+      "og:type": "website",
+      "og:site_name": "EngageLab Documentation",
+      "canonical": "https://www.engagelab.com/"
+    }
+  },
   "colors": {
     "primary": "#5E6BFA",
     "light": "#6A76FF",
@@ -16,6 +28,7 @@
           {
             "group": "Getting started",
             "pages": [
+              "otp/getting-started/index",
               "otp/getting-started/overview",
               "otp/getting-started/quickstart"
             ]
@@ -29,29 +42,24 @@
             ]
           },
           {
-            "group": "REST API",
+            "group": "OTP Service",
             "pages": [
-              {
-                "group": "OTP Service",
-                "pages": [
-                  "otp/api/authentication",
-                  "otp/api/custom-message-delivery.json POST /v1/custom-messages",
-                  "otp/api/custom-otp-code-delivery.json POST /v1/codes",
-                  "otp/api/otp-delivery.json POST /v1/messages",
-                  "otp/api/otp-verification.json POST /v1/verifications",
-                  "otp/api/template.json POST /v1/template-configs",
-                  "otp/api/template.json GET /v1/template-configs",
-                  "otp/api/template.json GET /v1/template-configs/{templateId}",
-                  "otp/api/template.json DELETE /v1/template-configs/{templateId}"
-                ]
-              },
-              {
-                "group": "Else",
-                "pages": [
-                  "otp/api/smpp",
-                  "otp/api/callback"
-                ]
-              }
+              "otp/api/authentication",
+              "otp/api/custom-message-delivery.json POST /v1/custom-messages",
+              "otp/api/custom-otp-code-delivery.json POST /v1/codes",
+              "otp/api/otp-delivery.json POST /v1/messages",
+              "otp/api/otp-verification.json POST /v1/verifications",
+              "otp/api/template.json POST /v1/template-configs",
+              "otp/api/template.json GET /v1/template-configs",
+              "otp/api/template.json GET /v1/template-configs/{templateId}",
+              "otp/api/template.json DELETE /v1/template-configs/{templateId}"
+            ]
+          },
+          {
+            "group": "Else",
+            "pages": [
+              "otp/api/smpp",
+              "otp/api/callback"
             ]
           }
         ]
@@ -121,6 +129,48 @@
       "facebook": "https://facebook.com/EngageLab.Aurora.Mobile",
       "linkedin": "https://linkedin.com/company/engagelab-aurora-mobile",
       "youtube": "https://www.youtube.com/@EngageLab_"
+    },
+    "links": [
+      {
+        "header": "Policy",
+        "items": [
+          {
+            "label": "Service Agreement",
+            "href": "https://www.engagelab.com/license/service-policy"
+          },
+          {
+            "label": "Privacy Policy",
+            "href": "https://www.engagelab.com/license/privacy"
+          }
+        ]
+      }
+    ]
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "api": {
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": [
+        "bash",
+        "javascript",
+        "python",
+        "go",
+        "java",
+        "node",
+        "php",
+        "ruby",
+        "swift",
+        "powershell"
+      ],
+      "defaults": "required",
+      "prefill": true
     }
   }
 }

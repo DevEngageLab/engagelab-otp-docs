@@ -14,6 +14,9 @@
     "/v1/custom-messages": {
       "post": {
         "summary": "Custom Messages Delivery",
+        "x-mint": {
+          "href": "otp/api/custom-messages-delivery"
+        },
         "description": "If you have created custom template content on the OTP platform, call this API to send custom message content.",
         "security": [
           {
