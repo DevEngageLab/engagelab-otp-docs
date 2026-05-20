@@ -1,55 +1,54 @@
-# Mintlify Starter Kit
+# EngageLab Official Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+This repository contains the official documentation for **EngageLab**, including comprehensive guides, API references, and SDK instructions for the EngageLab OTP service and other products. 
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+The documentation site is built using [Mintlify](https://mintlify.com/).
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## 🚀 Local Development
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+To preview the documentation locally, you need to install the Mintlify CLI.
 
-## AI-assisted writing
+### 1. Install Mintlify CLI
+```bash
+npm i -g mintlify
+```
 
-Set up your AI coding tool to work with Mintlify:
+### 2. Run the Development Server
+Run the following command at the root of the repository (where `docs.json` is located):
+```bash
+mint dev
+```
+Your local preview will be available at `http://localhost:3000`.
+
+### 3. Check for Broken Links
+Before committing your changes, you can verify that all internal links are working correctly:
+```bash
+mint broken-links
+```
+
+## 📁 Project Structure
+
+- `docs.json`: The core configuration file for the site's navigation, theme, SEO, and global settings.
+- `otp/`: Documentation specific to the EngageLab OTP service.
+  - `getting-started/`: Overview, quickstart, and AI onboarding guides.
+  - `api/`: OpenAPI 3.0.1 JSON schemas and detailed API reference pages.
+  - `ways-to-use/`: Integration guides for REST APIs, SDKs (Node.js & Python), and AI Agent Skills.
+
+## ✍️ Writing Guidelines
+
+- **Format:** All documentation pages are written in MDX (`.mdx`) and require YAML frontmatter.
+- **Icons:** We use [Lucide icons](https://lucide.dev/icons/) for the `icon` field in the frontmatter and Mintlify components (e.g., `<Card>`, `<Step>`).
+- **API References:** API documentation is generated from OpenAPI 3.0.1 JSON schemas located in the `otp/api/` directory. The `x-mint.href` property is used in the JSON schemas to map endpoints to their respective URLs.
+
+## 🤖 AI-Assisted Writing
+
+If you are using AI coding tools (like Cursor, Claude Code, or Windsurf) to contribute to this documentation, you can install the Mintlify documentation skill to provide your AI agent with component references and writing standards:
 
 ```bash
 npx skills add https://mintlify.com/docs
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+## 🌐 Links
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
-```
-
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+- [EngageLab Official Website](https://www.engagelab.com/)
+- [EngageLab Console](https://www.engagelab.com/console/)
